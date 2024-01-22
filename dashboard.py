@@ -4,22 +4,16 @@ from datetime import datetime, date
 import pandas as pd
 from sqlalchemy import create_engine
 import numpy as np
-#import streamlit.components.v1 as components
 import plotly.express as px
-#from streamlit_extras.add_vertical_space import add_vertical_space 
 from heart_rate_fun import heart_rate_zones, heart_rate
 from accelerometer_fun import categorize_activity, categorize_result, calculate_sgr
-##String in special format that lets you connect to SQL in format like user:password@server:port/database 
+import plotly.graph_objects as go
+
+
 connection_str = 'postgresql://jfgjgcfx:wQkwp_ImzFgYOBSkvzDgAFnAYr0ej5ML@snuffleupagus.db.elephantsql.com/jfgjgcfx'
 
-##creates connection with database using string above
+
 engine = create_engine(connection_str)
-
-## Sending query
-#query = f"select * from {table_name}"
-
-#df=pd.read_sql_query(query,con=engine)
-
 dfb = pd.DataFrame()
 
 
@@ -49,42 +43,26 @@ def draw_stats(df):
     col4.metric("Mediana tętna", str(round(med_puls)), change_med + "%")
 
 
-def draw_chart_ekg(df):
+def plot_chart(df,x,y,title,x_title,y_title):
     if not df.empty:
-        fig = px.line(df, x='timestamp', y="ecg")
+        #fig = px.scatter(df, x=x, y=y, trendline = 'rolling', trendline_options=dict(function="median", window=5))
+        fig = px.line(df, x=x, y=y)
+
         fig.update_layout(title={
-            'text': 'Wykres EKG dla zarejestrowanego treningu',
+            'text': title,
             'y':0.9,
             'x':0.5,
             'xanchor': 'center',
             'yanchor': 'top'},
-            xaxis_title="Czas",
-            yaxis_title="EKG impuls")
+            xaxis_title=x_title,
+            yaxis_title=y_title)
         fig.update_traces(line={'width': 0.25})
+
         with st.container():
             st.plotly_chart(fig, theme="streamlit")
     else:
         st.warning("No data available for the chart drawing.")
 
-
-
-def plot_activity(df):
-    if not df.empty:
-        fig = px.line(df, x='timestamp', y="Sgr_result")
-        fig.update_layout(title={
-            'text': 'Wypadkowa wartości z akcelerometru',
-            'y':0.9,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'},
-            xaxis_title="Czas",
-            yaxis_title="Przyspieszenie [m/s^2]")
-        
-        fig.update_traces(line={'width': 0.25})
-        with st.container():
-            st.plotly_chart(fig, theme="streamlit")
-    else:
-        st.warning("No data available for the chart drawing.")
     
 ############################################### PAGE CONFIG ####################################
 st.set_page_config(
@@ -94,11 +72,11 @@ st.set_page_config(
 )
 
 
-st.write("# EKG Visualization App")
+st.write("# Analizator treningu")
 
 form1 = st.empty()
 with form1.form(key='my_form'):
-        #Container with place to write text into it, when you click button
+    #Container with place to write text into it, when you click button
     #it submits the text and makes it as a variable named table_i, 
     # absolutely horrific name but dont wanna change'''
 
@@ -117,12 +95,13 @@ try:
 
         form1.empty()
         if not dfb.empty:
-            categorize_activity(dfb)
             heart_db = heart_rate(dfb)
+            categorize_activity(dfb)
             draw_stats(heart_db)
-            draw_chart_ekg(dfb)
-            plot_activity(dfb)
-            heart_rate_zones(heart_db)
+            plot_chart(dfb,'timestamp','ecg','Wykres EKG dla zarejestrowanego treningu',"Czas","EKG impuls")
+            plot_chart(dfb,'timestamp',"Sgr_result",'Wypadkowa wartości z akcelerometru','Czas', 'Przyspieszenie [m/s^2]')
+            plot_chart(heart_db, 'Date', 'heart_rate', 'Wykres tętna w czasie treningu', 'Czas', 'Tętno [BMP]')
+            heart_rate_zones(np.mean(heart_db['heart_rate']))
         else:
             st.warning("No data available for plotting")
 
