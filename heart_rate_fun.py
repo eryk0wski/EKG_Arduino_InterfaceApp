@@ -1,44 +1,37 @@
 import pandas as pd
 import numpy as np
 from scipy.signal import find_peaks
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from sqlalchemy import create_engine
+import streamlit as st
 
 
-connection_str = 'postgresql://jfgjgcfx:wQkwp_ImzFgYOBSkvzDgAFnAYr0ej5ML@snuffleupagus.db.elephantsql.com/jfgjgcfx'
+#connection_str = 'postgresql://jfgjgcfx:wQkwp_ImzFgYOBSkvzDgAFnAYr0ej5ML@snuffleupagus.db.elephantsql.com/jfgjgcfx'
 
 ##creates connection with database using string above
-engine = create_engine(connection_str)
+#engine = create_engine(connection_str)
 
-table_name = "bieznia_easy1"
-query = "select * from \"" + table_name + "\""
-df=pd.read_sql_query(query,con=engine)
+#table_name = "bieznia_easy1"
+#query = "select * from \"" + table_name + "\""
+#ciapek=pd.read_sql_query(query,con=engine)
 
 
 def heart_rate(df):
 
     ekg_signal = df['ecg'].values
-# Znajdowanie pików --- wartość 600 wzięta z wykresu
+    # Znajdowanie pików --- wartość 600 wzięta z wykresu
     peaks, _ = find_peaks(ekg_signal, height=500)
-# Oblicz różnice między kolejnymi pikami w jednostkach czasu
+    # Oblicz różnice między kolejnymi pikami w jednostkach czasu
     rr_intervals_time = np.diff(pd.to_datetime(df['timestamp'][peaks]))
-
-    #print("Dlugosc interval time:", len(rr_intervals_time))
-
-    #deltat = df['timestamp'].iloc[-1] - df['timestamp'].iloc[0]
-    #deltat_sec = (deltat.total_seconds())/(len(rr_intervals_time))
-    #print(deltat_sec)
-    #print(df['timestamp'].dtype)
-
-    #print("pierwsza data: ", np.datetime64(df['timestamp'].iloc[0]))
-
-    #time = np.arange(df['timestamp'].iloc[0], df['timestamp'].iloc[-1], timedelta(seconds=deltat_sec)).astype(np.datetime64)
-    #time = np.arange(np.datetime64(df['timestamp'].iloc[0]), np.datetime64(df['timestamp'].iloc[-1]),len(rr_intervals_time))
-    time = pd.date_range(start = df['timestamp'].iloc[0], end = df['timestamp'].iloc[-1], periods = len(rr_intervals_time) )
+    #wektor czasu od poczatku do konca podzielony na ilosc uderzen
+    time = pd.date_range(start = df['timestamp'].iloc[0], end = df['timestamp'].iloc[-1], periods = len(rr_intervals_time))
+    #konwersja z nano do mili
     intervals_heart_rate = rr_intervals_time / 1_000_000
+    #wartosci pulsu w danej chwili
     puls =  60_000 / intervals_heart_rate.astype(float)
-
     #intervals =  rr_intervals_time.astype('timedelta64[s]').astype(float)
+    print(puls.dtype)
+    print(time.dtype)
     heart_rate_db = pd.DataFrame()
     heart_rate_db['heart_rate'] = puls
     heart_rate_db['Date'] = time
@@ -60,3 +53,7 @@ def heart_rate_zones(average_pulse_bpm):
         training_zone = 'Strefy 4 - Intensywny trening (90-100% maksymalnego tętna)'
 
     st.write (f'Średnie tempo treningowe klasyfikuje się do: {training_zone}')
+
+#dab = heart_rate(ciapek)
+#print(dab)
+#print(dab.dtypes)

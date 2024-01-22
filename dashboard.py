@@ -1,6 +1,6 @@
 import streamlit as st
 from scipy.signal import find_peaks
-from datetime import datetime
+from datetime import datetime, date
 import pandas as pd
 from sqlalchemy import create_engine
 import numpy as np
@@ -20,7 +20,7 @@ engine = create_engine(connection_str)
 
 #df=pd.read_sql_query(query,con=engine)
 
-df = pd.DataFrame()
+dfb = pd.DataFrame()
 
 
 
@@ -49,7 +49,7 @@ def draw_stats(df):
     col4.metric("Mediana tętna", str(round(med_puls)), change_med + "%")
 
 
-def draw_chart_ekg():
+def draw_chart_ekg(df):
     if not df.empty:
         fig = px.line(df, x='timestamp', y="ecg")
         fig.update_layout(title={
@@ -113,15 +113,15 @@ try:
     if submit_button:
 
         query = "select * from \"" + table_name + "\""
-        df=pd.read_sql_query(query,con=engine)
+        dfb=pd.read_sql_query(query,con=engine)
 
         form1.empty()
-        if not df.empty:
-            categorize_activity(df)
-            heart_db = heart_rate(df)
+        if not dfb.empty:
+            categorize_activity(dfb)
+            heart_db = heart_rate(dfb)
             draw_stats(heart_db)
-            draw_chart_ekg()
-            plot_activity(df)
+            draw_chart_ekg(dfb)
+            plot_activity(dfb)
             heart_rate_zones(heart_db)
         else:
             st.warning("No data available for plotting")
