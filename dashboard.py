@@ -10,7 +10,7 @@ from accelerometer_fun import categorize_activity, categorize_result, calculate_
 import plotly.graph_objects as go
 
 
-connection_str = 'postgresql://jfgjgcfx:wQkwp_ImzFgYOBSkvzDgAFnAYr0ej5ML@snuffleupagus.db.elephantsql.com/jfgjgcfx'
+connection_str = '***************************************'
 
 
 engine = create_engine(connection_str)

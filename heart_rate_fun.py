@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 import streamlit as st
 
 
-#connection_str = 'postgresql://jfgjgcfx:wQkwp_ImzFgYOBSkvzDgAFnAYr0ej5ML@snuffleupagus.db.elephantsql.com/jfgjgcfx'
+connection_str = 'input_your_conection_string'
 
 ##creates connection with database using string above
 #engine = create_engine(connection_str)
