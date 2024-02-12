@@ -13,7 +13,7 @@ Thanks to that you can look at your past trainings and analyse performance.
 ## Hardware
 
 In project we had used 2 sensors conected to Arduino Uno microcontroller:
- - For ECG signal we have used ECG Sensor - AD8232. We got it cheaply from aliexpress, so it was probably some 
+ - For ECG signal we have used ECG Sensor - AD8232. We got it cheaply from aliexpress. 
  - For acceleartion values we have used 3-axis accelerometer - ADXL345. 
  - As our main board we used Arudino Uno clone - UNO R3 CH340 from some chinese manufacturer.
 
